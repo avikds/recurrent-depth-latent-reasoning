@@ -629,6 +629,49 @@ def adaptive_exit_forward(model, x, max_loops, kl_threshold, seed=0):
 
         return logits, loops_used, kl_history
 
-# Step 21 - greedy_add (not yet solved)
-# TODO: implement
+# Step 21 - greedy_add
+def greedy_add(model, a, b, n_digits, n_loops, seed=0):
+    model.eval()
+
+    # Build zero-padded decimal digits for a and b.
+    a_str = f"{a:0{n_digits}d}"
+    b_str = f"{b:0{n_digits}d}"
+
+    a_digits = [int(ch) for ch in a_str]
+    b_digits = [int(ch) for ch in b_str]
+
+    # Prompt: digits(a) + [PLUS] + digits(b) + [EQ]
+    prompt_ids = (
+        a_digits
+        + [PLUS]
+        + b_digits
+        + [EQ]
+    )
+
+    # One seeded generator is reused for the successive model calls.
+    generator = torch.Generator().manual_seed(seed)
+
+    predicted_digits = []
+
+    with torch.no_grad():
+        for _ in range(n_digits + 1):
+            prompt = torch.tensor(
+                [prompt_ids],
+                dtype=torch.long,
+            )
+
+            logits = model(
+                prompt,
+                n_loops=n_loops,
+                generator=generator,
+            )
+
+            # Greedily select the token predicted at the last position.
+            next_token = int(logits[0, -1].argmax().item())
+
+            prompt_ids.append(next_token)
+            predicted_digits.append(next_token)
+
+    # The generated tokens are the n_digits + 1 answer digits.
+    return int("".join(str(digit) for digit in predicted_digits))
 

@@ -30,7 +30,7 @@ python scaffold.py
 - [x] **18.** state_convergence
 - [x] **19.** kl_between_loops
 - [x] **20.** adaptive_exit_forward
-- [ ] **21.** greedy_add
+- [x] **21.** greedy_add
 
 ---
 
