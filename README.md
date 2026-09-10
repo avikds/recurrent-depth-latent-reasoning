@@ -28,7 +28,7 @@ python scaffold.py
 - [x] **16.** answer_accuracy
 - [x] **17.** accuracy_vs_loops
 - [x] **18.** state_convergence
-- [ ] **19.** kl_between_loops
+- [x] **19.** kl_between_loops
 - [ ] **20.** adaptive_exit_forward
 - [ ] **21.** greedy_add
 

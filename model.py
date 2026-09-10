@@ -544,8 +544,45 @@ def state_convergence(model, x, n_loops, seed=0):
 
     return changes
 
-# Step 19 - kl_between_loops (not yet solved)
-# TODO: implement
+# Step 19 - kl_between_loops
+def kl_between_loops(model, x, n_loops, seed=0):
+    model.eval()
+
+    generator = torch.Generator().manual_seed(seed)
+
+    with torch.no_grad():
+        _, states = model(
+            x,
+            n_loops=n_loops,
+            generator=generator,
+            return_states=True,
+        )
+
+        # Decode every latent state.
+        log_probs = [
+            torch.log_softmax(model.coda(state), dim=-1)
+            for state in states
+        ]
+
+    kl_values = []
+
+    for i in range(1, len(log_probs)):
+        prev_log_probs = log_probs[i - 1]
+        cur_log_probs = log_probs[i]
+
+        # p_{i-1} = exp(log p_{i-1})
+        prev_probs = prev_log_probs.exp()
+
+        # KL(p_{i-1} || p_i), summed over vocabulary and
+        # averaged over all positions in the batch.
+        kl = (
+            prev_probs
+            * (prev_log_probs - cur_log_probs)
+        ).sum(dim=-1).mean()
+
+        kl_values.append(round(float(kl.item()), 6))
+
+    return kl_values
 
 # Step 20 - adaptive_exit_forward (not yet solved)
 # TODO: implement
