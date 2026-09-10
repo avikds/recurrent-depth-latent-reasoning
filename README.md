@@ -35,6 +35,8 @@ python scaffold.py
 ## Results
 
 ```
+recurrent-depth model: 208,832 parameters, 107,456 of them in the looped core
+
 trained 600 steps; loop budgets seen: min 1, mean 4.8, max 12
   step   1: answer loss 2.648  (loops 3)
   step 100: answer loss 1.158  (loops 12)
