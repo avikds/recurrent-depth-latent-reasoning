@@ -584,8 +584,50 @@ def kl_between_loops(model, x, n_loops, seed=0):
 
     return kl_values
 
-# Step 20 - adaptive_exit_forward (not yet solved)
-# TODO: implement
+# Step 20 - adaptive_exit_forward
+def adaptive_exit_forward(model, x, max_loops, kl_threshold, seed=0):
+    model.eval()
+
+    generator = torch.Generator().manual_seed(seed)
+
+    with torch.no_grad():
+        # Prelude and seeded initial latent state.
+        e = model.prelude(x)
+        s = model.initial_state(e, generator=generator)
+
+        prev_logp = None
+        kl_history = []
+
+        for loop_idx in range(max_loops):
+            # One recurrent core iteration.
+            s = model.core(e, s)
+
+            # Decode the current latent state.
+            logits = model.coda(s)
+            logp = torch.log_softmax(logits, dim=-1)
+
+            # Starting from the second loop, compare with the
+            # distribution from the previous loop.
+            if prev_logp is not None:
+                prev_p = prev_logp.exp()
+
+                kl = (
+                    prev_p * (prev_logp - logp)
+                ).sum(dim=-1).mean()
+
+                kl_value = float(kl.item())
+                kl_history.append(kl_value)
+
+                # Exit as soon as the distributions have converged.
+                if kl_value < kl_threshold:
+                    loops_used = loop_idx + 1
+                    return logits, loops_used, kl_history
+
+            prev_logp = logp
+
+        loops_used = max_loops
+
+        return logits, loops_used, kl_history
 
 # Step 21 - greedy_add (not yet solved)
 # TODO: implement
