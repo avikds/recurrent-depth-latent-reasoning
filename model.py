@@ -7,7 +7,9 @@ Assembled from your step-by-step solutions.
 import numpy as np
 
 # Step 1 - make_addition_batch
+import math
 import torch
+import torch.nn.functional as F
 
 PLUS, EQ, VOCAB_SIZE = 10, 11, 12
 
