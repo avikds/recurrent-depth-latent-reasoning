@@ -32,6 +32,30 @@ python scaffold.py
 - [x] **20.** adaptive_exit_forward
 - [x] **21.** greedy_add
 
----
+## Results
 
-Built on Deep-ML.
+```
+trained 600 steps; loop budgets seen: min 1, mean 4.8, max 12
+  step   1: answer loss 2.648  (loops 3)
+  step 100: answer loss 1.158  (loops 12)
+  step 200: answer loss 1.011  (loops 9)
+  step 300: answer loss 0.522  (loops 2)
+  step 400: answer loss 0.243  (loops 8)
+  step 500: answer loss 0.111  (loops 2)
+  step 600: answer loss 0.040  (loops 6)
+
+sequence accuracy vs loop budget (same seed, same 256 problems):
+   1 loops: 0.809   2 loops: 0.945   4 loops: 0.934   8 loops: 0.930  16 loops: 0.930  32 loops: 0.930
+  (toy scale: the curve should rise then flatten; exact values move with the seed)
+
+relative state change per loop: [0.3746, 0.1341, 0.0506, 0.0205, 0.0086, 0.0036, 0.0015, 0.0006, 0.0003]
+KL between successive predictions: ['1.43e-01', '1.65e-02', '1.86e-03', '3.68e-04', '5.30e-05', '6.00e-06', '1.00e-06', '0.00e+00', '0.00e+00']
+  adaptive exit at KL < 0.01: stopped after 4 loops
+  adaptive exit at KL < 0.0001: stopped after 6 loops
+
+greedy addition with 12 loops:
+  47 + 38 = 85  (ok)
+  99 + 1 = 100  (ok)
+  12 + 34 = 46  (ok)
+  65 + 79 = 144  (ok)
+```
